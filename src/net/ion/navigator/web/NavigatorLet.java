@@ -51,7 +51,7 @@ import net.ion.radon.core.ContextParam;
 import com.google.common.base.Objects;
 
 @Path("")
-public class NavigatorLet implements IServiceLet{
+public class NavigatorLet {
 
 	private Engine engine = Engine.createDefaultEngine();
 	private static File BASE_DIR = new File("./webapp") ;
@@ -240,7 +240,7 @@ public class NavigatorLet implements IServiceLet{
         String propName = StringUtil.substringAfterLast(remainPath, ".");
 
         ReadNode node = session.ghostBy(nodePath);
-        String template = findTemplate(session, node, propName);
+        String template = engineTemplate(session, node, propName);
 
         Map<String, Object> props = props(node);
         String transformed = session.workspace().parseEngine().transform(template, props);
@@ -256,10 +256,13 @@ public class NavigatorLet implements IServiceLet{
         return props;
     }
 
-    private String findTemplate(ReadSession session, ReadNode node, String propName) {
-
-        if(isParentOfRoot(session, node)) {
-            return session.ghostBy("/__" + propName).property(propName).stringValue();
+    private String engineTemplate(ReadSession session, ReadNode node, String propName) {
+    	
+        if(node.fqn().isRoot()) {
+            return    "properties \n"
+            		+ "${foreach self.toMap() entry \n } ${entry.getKey().idString()} ${entry.getValue().asObject()} ${end} \n\n<br/><br/>"
+            		+ "children \n"
+            		+ "${foreach self.children() node \n } ${node} ${end}";
         }
 
         if(node.hasProperty(propName)) {
@@ -267,7 +270,7 @@ public class NavigatorLet implements IServiceLet{
         } else if(node.hasRef(propName)) {
             return node.ref(propName).property(propName).stringValue();
         } else {
-            return findTemplate(session, node.parent(), propName);
+            return engineTemplate(session, node.parent(), propName);
         }
     }
 
