@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="demo-all.css"/>
+        <link rel="stylesheet" href="demo.css"/>
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.css"/>
+
+        <title>HTML5 Node Diagram</title>
+
+        <script src="lib/jquery-1.9.0.js"></script>
+        <script src="lib/jquery.jeditable.js"></script>
+        <script src="lib/jquery-ui.js"></script>
+        <script src="lib/jquery.jsPlumb-1.5.5.js"></script>
+        <script src="bootstrap/js/bootstrap.js"></script>
+        <script src="lib/jQuery_mousewheel_plugin.js"></script>
+        <script src="lib/pan.js"></script>
+        <script src="lib/noty/packaged/jquery.noty.packaged.min.js"></script>
+
+        <!--editor src-->
+        <link rel="stylesheet" href="jsoneditor.css"/>
+        <script src="lib/editor/jquery.json-2.4.min.js"></script>
+        <script src="lib/editor/jsoneditor.js"></script>
+        <script src="lib/editor/ace.js"></script>
+        <script src="lib/editor/jsonlint.js"></script>
+        <script src="lib/editor/mode-json.js"></script>
+        <script src="lib/editor/theme-jsoneditor.js"></script>
+        <script src="lib/editor/theme-textmate.js"></script>
+    
+    </head>
+    <body data-demo-id="statemachine" data-library="jquery" oncontextmenu="return false;">
+        <div id="main" style="margin-top:5em;">
+            <div class="demo statemachine-demo" id="stage">
+                <script src="app/Stage.js"></script>
+            </div>
+        </div>
+
+        
+        <div class="modal fade bs-example-modal-lg" id="nodeEditorPanel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Properties</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <fieldset>
+                                <legend>Default</legend>
+                                <div class="form-group">
+                                    <label class="col-md-4 control-label" for="textinput">Node Name</label>
+                                    <div class="col-md-4">
+                                        <input id="textinput" style="width: 280px;" name="textinput" type="text" placeholder="placeholder" class="form-control input-md">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-4 control-label" for="textinput">Parent</label>
+                                    <div class="col-md-4">
+                                        <input id="textinput" style="width: 280px;" name="textinput" type="text" placeholder="placeholder" class="form-control input-md" value="myParent">
+                                    </div>
+                                </div>
+                                <legend>Properties</legend>
+                                <div class="form-group">
+                                    <label class="col-md-4 control-label" for="textarea">Node Properties</label>
+                                    <div class="col-md-4">
+                                        <div id="codeEditor" style="width: 800px; height: 600px;"></div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary action_button">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+       <div class="modal fade" id="connEditorPanel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Connection</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-md-4 control-label" for="textinput">Node Name</label>
+                                    <div class="col-md-4">
+                                        <input id="textinput" style="width: 280px;" name="textinput" type="text" placeholder="placeholder" class="form-control input-md">
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary action_button">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>        
+        <!--<script src="diagram.js"></script>-->
+    </body>
+</html>

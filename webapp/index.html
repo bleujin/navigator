@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Node Canvas</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/app/demo-all.css"/>
+    <link rel="stylesheet" href="/app/demo.css"/>
+    <link rel="stylesheet" href="/app/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/app/lib/editor/jsoneditor.css"/>
+    <link rel="stylesheet" href="/app/lib/slidepanel/portBox.css"/>
+    <style>
+        .white-popup {
+            position: relative;
+            background: #FFF;
+            padding: 20px;
+            width:auto;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+    </style>
+
+
+    <!--<script src="data.js"></script>-->
+
+    <script src="/app/lib/jquery-1.9.0.js"></script>
+    <script src="/app/lib/jquery-ui.js"></script>
+    <script src="/app/bootstrap/js/bootstrap.js"></script>
+
+    <script src="/app/lib/jquery.jeditable.js"></script>
+
+    <script src="/app/lib/jquery.jsPlumb-1.5.5.js"></script>
+
+    <script src="/app/lib/jQuery_mousewheel_plugin.js"></script>
+
+    <script src="/app/lib/noty/packaged/jquery.noty.packaged.min.js"></script>
+
+    <!-- JSONEditor -->
+    <script src="/app/lib/editor/jsoneditor.js"></script>
+    <script src="/app/lib/editor/ace.js"></script>
+    <script src="/app/lib/editor/jquery.json-2.4.min.js"></script>
+    <script src="/app/lib/editor/mode-json.js"></script>
+    <script src="/app/lib/editor/theme-jsoneditor.js"></script>
+    <script src="/app/lib/editor/jsonlint.js"></script>
+
+    <!--SlidePanel-->
+    <script src="/app/lib/slidepanel/portBox.slimscroll.min.js"></script>
+
+    <!-- iosOverlay -->
+    <link rel="stylesheet" href="/app/lib/iosOverlay/iosOverlay.css"/>
+    <script src="/app/lib/iosOverlay/iosOverlay.js"></script>
+    <script src="/app/lib/iosOverlay/spin.min.js"></script>
+
+    <!-- Tooltip -->
+    <script src="/app/lib/hovercard/jquery.hovercard.js"></script>
+
+    <!-- context menu -->
+    <script src="/app/lib/jquery.contextmenu.r2.js"></script>
+
+</head>
+<body data-demo-id="statemachine" data-library="jquery" oncontextmenu="return false;">
+<div class="explanation">
+    <h4>Node Canvas</h4>
+</div>
+<div id="main" style="margin-top:5em;">
+    <div class="demo statemachine-demo" id="stage">
+        <script src="/app/app/PropertyPanel.js"></script>
+        <script src="/app/app/ReferenceDialog.js"></script>
+        <script src="/app/app/NodeNameDialog.js"></script>
+        <script src="/app/app/Progress.js"></script>
+        <script src="/app/app/Stage.js"></script>
+
+        <script type="text/javascript">
+            var _stage;
+
+            var server = '';
+            window.NC = {};
+            window.NC.Progress = new Progress();
+
+            window.NC.REST = {
+                propertyLet: server + '/properties',
+                nodeLet: server + '/node',
+                relationLet: server + '/relation'
+            };
+
+            jsPlumb.ready(function () {
+                _stage = new Stage('stage');
+
+                $.ajax({
+                    url     : NC.REST.propertyLet + '/',
+                    dataType: 'json',
+                    type    : 'GET',
+                    error   : function (jqXHR, textStatus, errorThrown) {
+                        alert(textStatus);
+                        alert(errorThrown);
+                    },
+                    success : function (data) {
+                        var nodes = [];
+
+                        nodes.push(data);
+                        _stage.init(nodes);
+                    }
+                });
+            });
+        </script>
+    </div>
+</div>
+
+<!--SlidePanel for properties-->
+<div id="properties" class="portBox">
+    <h3>Node Editor</h3>
+
+    <div style="width: 1000px; padding-bottom: 10px;">
+        <label>Node Path :</label>
+        <input id="propertyPanel_nodePath" type="text" class="form-control" value="/" readonly/>
+    </div>
+
+    <label>Properties</label>
+
+    <div id="codeEditor" style="width: 1000px; height: 500px; padding-bottom: 5px;"></div>
+
+    <button type="button" id="codeEditor_save" class="btn btn-primary action_button">Save</button>
+    <button type="button" id="codeEditor_close" class="btn btn-default">Close</button>
+</div>
+
+<div class="modal fade" id="connEditorPanel" tabindex="-1" role="dialog" aria-labelledby="refLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="refLabel">Reference</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="connName">Reference name</label>
+
+                            <div class="col-md-4">
+                                <input id="connName" style="width: 280px;" name="_connName" type="text" placeholder="Referenece Name Here" class="form-control input-md">
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary action_button">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="nodeNameEditorPanel" tabindex="-2" role="dialog" aria-labelledby="nodeNameLabel" aria-hidden="true">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="nodeNameLabel">Node Name</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="node_name">Node name</label>
+
+                            <div class="col-md-4">
+                                <input id="parentPath" type="hidden"/>
+                                <input id="node_name" style="width: 280px;" name="_nodeName" type="text" placeholder="Node Name here" class="form-control input-md">
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary action_button">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="contextMenu" id="nodeMenu">
+    <ul>
+        <li id="preview">
+            <div class="glyphicon glyphicon-eye-open"></div>
+            Preview
+        </li>
+        <li id="refresh">
+            <div class="glyphicon glyphicon-refresh"></div>
+            Refresh
+        </li>
+    </ul>
+</div>
+</body>
+</html>

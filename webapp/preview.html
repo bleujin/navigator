@@ -1,0 +1,356 @@
+<!doctype html>
+<html ng-app="dndApp">
+<head>
+    <title>Preview using iFrame</title>
+    <link rel="stylesheet" href="/app/preview.css">
+    <link rel="stylesheet" href="/app/bootstrap/css/bootstrap.css"/>
+    <style type="text/css">
+        .white-popup {
+            position: relative;
+            background: #FFF;
+            padding: 20px;
+            width:auto;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        #tools-group li{
+            /*float:left;*/
+            padding-right:5px;
+            list-style: none;
+            border: 1px solid #000;
+            margin-right:4px;
+            margin-top:5px;
+            background-color: #efefef
+        }
+
+        #onPageDiv{height:0px;border:1px solid #000000;background-color: #efefef}
+
+        #ifrContainer{
+            height:100%;
+            width: 75%;
+            left:0;
+            float: left;
+        }
+
+        #preview{
+            width:100%;
+            height: 100%
+        }
+
+            /*html, body {*/
+            /*height: 100%;*/
+            /*min-height: 100%;*/
+            /*position: relative;*/
+            /*}*/
+
+            /*iframe {*/
+            /*display: block;*/
+            /*width: 100%;*/
+            /*border: 1px solid #808080;*/
+            /*}*/
+
+        html, body, iframe { margin:0; padding:0; height:100%; }
+
+        iframe { display:block; width:100%; border:1px solid darkgreen; }
+
+        .drag-active {z-index: 2;-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";filter: alpha(opacity = 100);opacity: 1;}
+
+        .drop-hover{ border: 4px dashed #51b62b; }
+
+    </style>
+
+
+</head>
+<body>
+
+<div class="modal fade" id="propEditor" tabindex="-1" role="dialog" aria-labelledby="refLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="refLabel">Edit property</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="propValue">Reference name</label>
+
+                            <div class="col-md-4">
+                                <textarea id="propValue" style="width: 280px;" name="_propValue" class="form-control input-md"></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary action_button">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="container" style="margin:0; padding:0; height:100%;">
+    <div id="ifrContainer"><iframe id="preview" src="${link}" dnd-droppable-iframe></iframe></div>
+    <div id="controls" style="float: left; margin-left: 10px;">
+        <h2>Tags</h2>
+        <ul id="tools-group" style="text-align: center; vertical-align: middle;">
+            <li data-raw="<div dnd-draggable dnd-droppable>Some Text</div>" data-helper="clone" dnd-draggable>DIV</li>
+            <li data-raw="<div dnd-draggable dnd-droppable><label for=''>Label</label></div>" data-helper="clone" dnd-draggable>Label</li>
+            <li data-raw="<div dnd-draggable dnd-droppable><h1>Header1</h1>" data-helper="clone" dnd-draggable>H1</li>
+            <li data-raw="<div dnd-draggable dnd-droppable><h2>Header1</h2>" data-helper="clone" dnd-draggable>H2</li>
+            <li data-raw="<div dnd-draggable dnd-droppable><h3>Header1</h3>" data-helper="clone" dnd-draggable>H3</li>
+            <li data-raw="<div dnd-draggable dnd-droppable><hr/>" data-helper="clone" dnd-draggable>Horizontal</li>
+            <li data-raw="<div dnd-draggable dnd-droppable><button>Button</button></div>" data-helper="clone" dnd-draggable>Button</li>
+        </ul>
+    </div>
+</div>
+
+<script src="/app/lib/jquery-1.9.0.js" charset="utf-8"></script>
+<script src="/app/lib/jquery-ui-1.9.2-min.js" charset="utf-8"></script>
+<script src="/app/lib/angular.js" charset="UTF-8"></script>
+<script src="/app/bootstrap/js/bootstrap.js"></script>
+<script src="/app/app/dnd.js"></script>
+<script type="text/javascript">
+
+if(!String.prototype.replaceAll) {
+    String.prototype.replaceAll = function(oldOne, newOne) {
+        return this.split(oldOne).join(newOne);
+    };
+}
+
+function iframeContent() {
+    return $('#preview').contents();
+}
+
+var propEditor = '';
+var virtualDoc, virtualBody;
+
+$(document).ready(function() {
+
+    var width = $(window).width(), height = $(window).height();
+
+    var now = new Date().getTime();
+
+    var iframeSrc = $('#preview').attr('src');
+
+    $('#preview').attr('src', iframeSrc + '?_t=' + now);
+
+    function PropertyEditDialog() {
+
+        var _self = this;
+
+        var panel = $('#propEditor');
+
+        var $el= null;
+        this.callback = null;
+        var $val = null;
+
+        $('#propEditor .action_button').on('click', function() {
+            var newValue = $('#propValue').val().trim();
+
+            $el.html(newValue);
+
+            if($el.attr('craken-path')) {
+                var crakenPath = $el.attr('craken-path'),
+                        nodeItem = crakenPath.split('.'),
+                        nodePath = nodeItem[0],
+                        propertyId = nodeItem[1];
+
+                updateProperty(nodePath, propertyId, newValue);
+
+            } else {
+
+                updateTemplate($val, newValue);
+            }
+
+            panel.modal('hide');
+        });
+
+        this.show = function(_el, _value) {
+            $el = _el;
+            $val = _value;
+
+            $('#propValue').val($val);
+
+            panel.modal('show');
+        };
+    };
+
+    var updateProperty = function(nodePath, propertyId, value) {
+        var url = 'http://localhost:9000/property/' + nodePath + '.' + propertyId;
+        var _body = {
+            _value: value
+        }
+
+        $.post(url, _body,function (response) {
+            // currently do nothing...
+        }).fail(function (e) {
+                    alert('[' + e.status + ']' + e.statusText);
+                });
+    };
+
+    var updateTemplate = function(original, modified) {
+
+        var virtualBodyTags = virtualBody[0].outerHTML;
+        var bodyTpl = virtualBodyTags.replace(original, modified);
+        var template = getVirtualDoc().replace(original, modified);
+        var crakenTags = [];
+
+        virtualBody.html(bodyTpl);
+
+        $(template).find('[craken-path]').each(function() {
+            var $el = $(this);
+
+            if($el.has('craken-path')) {
+                var tag = $el[0].outerHTML;
+                var crakenPath = $el.attr('craken-path');
+                var crakenScript = $el.attr('craken-script');
+
+                crakenTags.push({
+                    element: $el,
+                    interpreted: tag,
+                    path: crakenPath,
+                    original: crakenScript
+                });
+            }
+        });
+
+        for(var i = 0; i < crakenTags.length; i++) {
+            var tag = crakenTags[i];
+            template = template.replaceAll(tag.interpreted, '$' + '{' + tag.original + '}');
+        }
+
+        var url = document.location.href.replace('/preview/', '/property/'),
+                _body = {
+                    _value: template
+                };
+
+        $.post(url, _body, function(response) {
+            // currently do nothing
+        }).fail(function(e) {
+                    alert('[' + e.status + ']' + e.statusText);
+                });
+
+        iframeContent().find('body *').each(handle);
+    };
+
+    var handleSingle = function($el) {
+        var tempVal;
+        var handlers =  {
+            onMouseOver: function(e) {
+                e.stopPropagation();
+
+                if ($el.attr('craken-path')) {
+                    $el.addClass('areaBorderRed');
+                } else {
+                    $el.addClass('areaBorderBlue');
+                }
+            },
+
+            onMouseOut : function(e) {
+                e.stopPropagation();
+
+                if ($el.attr('craken-path')) {
+                    $el.removeClass('areaBorderRed');
+                } else {
+                    $el.removeClass('areaBorderBlue');
+                }
+
+                if($el.attr('class') === '') {
+                    $el.removeAttr('class');
+                }
+            },
+            onDblClick: function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                tempVal = $el.html().trim();
+
+                propEditor.show($el, tempVal);
+            }
+        };
+
+        if(!$el.data('handlers')) {
+            $el.mouseover(handlers.onMouseOver);
+            $el.mouseout(handlers.onMouseOut);
+            $el.dblclick(handlers.onDblClick);
+
+            $el.data('handlers', handlers);
+        }
+    };
+
+    var handle = function() {
+        handleSingle($(this));
+    };
+
+    var parseVirtualDOM = function(html) {
+        var dom = new DOMParser().parseFromString(html, 'text/html');
+
+        virtualDoc = $(dom);
+        virtualBody = virtualDoc.find('body');
+    };
+
+    var updateVirtualBody = function(appended) {
+        appended.appendTo(virtualBody);
+    };
+
+    var getVirtualDoc = function() {
+        return virtualDoc.contents()[0].outerHTML;
+    };
+
+    var onIFrameDrop = function(el) {
+        updateVirtualBody(el);
+        updateTemplate();
+    };
+
+    var onIFrameLoad = function() {
+
+        propEditor = new PropertyEditDialog();
+
+        var doc = document.getElementById('preview').contentDocument;
+
+        var previewCss = doc.createElement('link');
+        previewCss.rel = 'stylesheet';
+        previewCss.href = '/app/preview.css';
+
+        var jqueryuiCss = doc.createElement('link');
+        jqueryuiCss.rel = 'stylesheet';
+        jqueryuiCss.href = '/app/jquery-ui.css';
+
+        var bootstrapCss = doc.createElement('link');
+        bootstrapCss.rel = 'stylesheet';
+        bootstrapCss.href = '/app/bootstrap/css/bootstrap.min.css';
+
+        var headEl = $(doc).find('head');
+
+        $(previewCss).appendTo(headEl);
+        $(jqueryuiCss).appendTo(headEl);
+        $(bootstrapCss).appendTo(headEl);
+
+        iframeContent().find('body *').each(handle);
+        iframeContent().find('a').bind('click', false);
+
+        $.ajax({
+            url : document.location.href.replace('/preview/', '/cview/'),
+            type: 'GET',
+            success: function(response) {
+                parseVirtualDOM(response);
+            },
+            error: function(response) {
+                alert(response);
+            }
+        });
+    };
+
+    $('#preview').load(onIFrameLoad);
+
+    window.onIFrameDrop = onIFrameDrop;
+    window.onIFrameLoad = onIFrameLoad;
+});
+</script>
+
+</body>
+</html>
