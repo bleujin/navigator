@@ -30,6 +30,9 @@ public class Main {
 					public void handleHttpRequest(HttpRequest req, HttpResponse res, HttpControl arg2) throws Exception {
 						res.status(404).content("not found path : " + req.uri()).end() ;
 					}
+				    public int order(){
+				        return 6;
+				    }
 				});
 
 		Craken craken = Craken.local();

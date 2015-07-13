@@ -53,7 +53,7 @@ import com.google.common.base.Objects;
 @Path("")
 public class NavigatorLet {
 
-	private Engine engine = Engine.createDefaultEngine();
+	private Engine engine ;
 	private static File BASE_DIR = new File("./webapp") ;
 	private static Map<String, Transformer> transformers = MapUtil.<Transformer> chainKeyMap().put("json", new JsonTransformer()).put("jsonp", new JsonpTransformer()).toMap();
 	
@@ -61,6 +61,7 @@ public class NavigatorLet {
 	private ReadSession session;
 	public NavigatorLet(@ContextParam(RepoEntry.EntryID) RepoEntry entry) throws IOException{
 		this.session = entry.login() ;
+		this.engine = session.workspace().parseEngine() ;
 	}
 
 	

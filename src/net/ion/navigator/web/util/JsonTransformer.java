@@ -81,7 +81,7 @@ public class JsonTransformer implements Transformer {
                 
                 JsonObject childJson = transformToJson(child);
 
-                childJson.put("relName", "child");
+//                childJson.put("relName", "child");
 
                 children.add(childJson);
             }

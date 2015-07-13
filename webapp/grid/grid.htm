@@ -1,0 +1,143 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<title>gridster.js</title>
+
+	<meta name="description" content="gridster.js, a drag-and-drop multi-column jQuery grid plugin">
+	<meta name="author" content="duscksboard">
+
+    <link rel="stylesheet" type="text/css" href="dist/jquery.gridster.min.css">
+
+	<link rel="stylesheet" href="assets/css/style.css">
+    <link href='http://fonts.googleapis.com/css?family=Rancho' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+<header role="header">
+</header>
+
+
+<div role="main">
+
+    <section id="intro" class="wrapper m_txt">
+    </section>
+
+
+    <section class="demo">
+        <div class="gridster">
+          <ul>
+            <li data-row="1" data-col="1" data-sizex="2" data-sizey="1"> </li>
+            <li data-row="3" data-col="1" data-sizex="1" data-sizey="1"> </li>
+
+            <li data-row="3" data-col="2" data-sizex="2" data-sizey="1"><div editable="static">html</div></li>
+            <li data-row="1" data-col="2" data-sizex="2" data-sizey="2"> </li>
+
+            <li data-row="1" data-col="4" data-sizex="1" data-sizey="1" data-max-sizex="1" data-max-sizey="1"><div editable="static">html</div></li>
+            <li data-row="2" data-col="4" data-sizex="2" data-sizey="1"></li>
+            <li data-row="3" data-col="4" data-sizex="1" data-sizey="1"> </li>
+
+            <li data-row="1" data-col="5" data-sizex="1" data-sizey="1"> </li>
+            <li data-row="3" data-col="5" data-sizex="1" data-sizey="1"> </li>
+
+            <li data-row="1" data-col="6" data-sizex="1" data-sizey="1"> </li>
+            <li data-row="2" data-col="6" data-sizex="1" data-sizey="2"> </li>
+          </ul>
+        </div>
+
+    </section>
+
+	
+</div>
+
+
+
+<footer role="footer"></footer>
+
+<script type="text/javascript" src="assets/js/libs/jquery-1.7.2.min.js"></script>
+<script src="dist/jquery.gridster.js" type="text/javascript" charset="utf-8"></script>
+<script src="../ckeditor/ckeditor.js"></script>
+
+<script type="text/javascript">
+  var gridster;
+
+  $(function(){
+
+    gridster = $(".gridster > ul").gridster({
+        widget_margins: [10, 10],
+        widget_base_dimensions: [140, 140],
+        min_cols: 6,
+        resize: {
+            enabled: true
+        }
+    }).data('gridster');
+
+
+    // var collection = [
+    //     ['<li><div class="title">drag</div>Widget content</li>', 1, 2],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 5, 2],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 3, 2],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 2, 1],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 4, 1],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 1, 2],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 2, 1],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 3, 2],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 1, 1],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 2, 2],
+    //     ['<li><div class="title">drag</div>Widget content</li>', 1, 3],
+    // ];
+
+    // $.each(collection, function(i, widget){
+    //     gridster.add_widget.apply(gridster, widget)
+    // });
+
+    $("body")
+    .on('dblclick', 'li>div', function (e) {
+    	console.log($(this)) ;
+        $(this).attr('contenteditable', true);
+        
+        
+        var editor = CKEDITOR.replace( this, {
+            toolbar:
+            	'ToolBarComplete'
+            });
+        editor.focus();
+        
+        editor.on('blur', function(e){
+        	console.log(e.editor.checkDirty()) ;
+	      	e.editor.destroy();
+ 		});
+
+        return $(this);
+    }).on('mouseover', 'p[editable=tag], div[editable=tag]', function (e) {
+        // $this.css({"border-color": "#C1E0FF", "border-width":"1px",  "border-style":"solid"});
+    }).on('mouseout', 'p[editable=tag], div[editable=tag]', function (e) {
+        // $this.css({"border-width":"0px"});
+    }).on('blur', 'li>div', function (e) {
+        $(this).removeAttr('contenteditable');
+        return $(this);
+	});
+    
+
+    CKEDITOR.disableAutoInline = true;
+
+  });
+</script>
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33489625-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</body>
+</html>
